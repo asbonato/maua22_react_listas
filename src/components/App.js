@@ -4,6 +4,7 @@ import env from 'react-dotenv'
 import { createClient } from 'pexels'
 import ListaImagens from './ListaImagens'
 import PexelsLogo from './Pexels'
+import pexelsClient from '../utils/pexelsClient'
 
 export default class App extends React.Component{
     pexelsClient = null
@@ -13,12 +14,25 @@ export default class App extends React.Component{
         this.pexelsClient = createClient(env.PEXELS_KEY)
     }
 
+    // onBuscaRealizada = (termo) => {
+    //     this.pexelsClient.photos.search({
+    //         query: termo
+    //     })
+    //     .then(pics => this.setState({pics: pics.photos}))
+    // }
+
     onBuscaRealizada = (termo) => {
-        this.pexelsClient.photos.search({
-            query: termo
+        pexelsClient.get('/search', {
+            params: {query: termo}
         })
-        .then(pics => this.setState({pics: pics.photos}))
+        .then(result => {
+            console.log(result)
+            //data é um atributo definido pela axios
+            //o conteúdo da resposta vem associado a esta chave
+            this.setState({pics: result.data.photos})
+        })
     }
+
     render(){
         //console.log(env.PEXELS_KEY)
         //console.log(window.env.PEXELS_KEY)
@@ -30,11 +44,14 @@ export default class App extends React.Component{
                 <div className='col-12'>
                     <h1 className="text-center">Exibir uma lista de...</h1>
                 </div>
-                <div className='col-8'>
+                <div className='col-12'>
                     <Busca onBuscaRealizada={this.onBuscaRealizada} />
                 </div>
-                <div className='col-8'>
-                    <ListaImagens pics={this.state.pics}/>
+                <div className='col-12'>
+                    <div className='grid'>
+                        <ListaImagens imgStyle={'col-12 md:col-6 lg:col-4 xl:col-3'} 
+                            pics={this.state.pics}/>
+                    </div>
                 </div>
             </div>
         )
